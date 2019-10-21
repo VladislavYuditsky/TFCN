@@ -167,7 +167,7 @@ public class MessengerCore {
         public void serialEvent(SerialPortEvent event) {
             if (event.isRXCHAR() && event.getEventValue() > 0) {
                 try {
-                    MessengerView.showMessage(new String(HammingCode.decode(serialPort.readBytes(event.getEventValue())), UTF_8));
+                    MessengerView.showMessage(new String(HammingCode.decode(serialPort.readBytes(event.getEventValue()))));
                 } catch (SerialPortException e) {
                     e.printStackTrace();
                 }

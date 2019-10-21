@@ -50,13 +50,13 @@ public class HammingCode {
         String binaryString = new BigInteger(msg).toString(2);
         ArrayList<Character> bits = new ArrayList<>(Arrays.asList(ArrayUtils.toObject(binaryString.toCharArray())));
 
-        System.out.println("Binary message: " + bits);
+        //System.out.println("Binary message: " + bits);
 
         addParityBits(bits);
 
         calcParityBits(bits);
 
-        System.out.println("Hamming code:" + bits);
+        //System.out.println("Hamming code:" + bits);
 
         addStartBit(bits);
 
@@ -84,22 +84,63 @@ public class HammingCode {
         bits.remove(0);
     }
 
+    public static int takeErrorPosition(ArrayList<Character> incomingBits, ArrayList<Character> bits){
+        int errorPosition = 0;
+        int i, e = 0;
+
+        while((i = (int)Math.pow(2,e)) <= bits.size()){
+            if(incomingBits.get(i - 1) != bits.get(i - 1)){
+                errorPosition += i - 1;
+            }
+            e++;
+        }
+
+        return errorPosition;
+    }
+
+    public static void invert(ArrayList<Character> bits, int position){
+        if(bits.get(position).equals('0')){
+            bits.set(position, '1');
+        } else{
+            bits.set(position, '0');
+        }
+    }
+
+    public static boolean isError(ArrayList<Character> incomingBits, ArrayList<Character> bits){
+        int i, e = 0;
+
+        while((i = (int)Math.pow(2,e)) <= bits.size()){
+            if(incomingBits.get(i - 1) != bits.get(i - 1)){
+                return true;
+            }
+            e++;
+        }
+
+        return  false;
+    }
+
     public static byte[] decode(byte[] msg) {
 
         String binaryString = new BigInteger(msg).toString(2);
-        ArrayList<Character> bits = new ArrayList<>(Arrays.asList(ArrayUtils.toObject(binaryString.toCharArray())));
+        ArrayList<Character> incomingBits = new ArrayList<>(Arrays.asList(ArrayUtils.toObject(binaryString.toCharArray())));
 
-        removeStartBit(bits);
+        removeStartBit(incomingBits);
 
-        System.out.println("Incoming message(Hamming code): " + bits);
+        ArrayList<Character> bits = new ArrayList<>(incomingBits);
+
+        //System.out.println("Incoming message(Hamming code): " + incomingBits);
 
         calcParityBits(bits);
 
-        System.out.println("Humming code: " + bits);
+        //System.out.println("Humming code: " + bits);
+
+        if(isError(incomingBits, bits)){
+           invert(bits,takeErrorPosition(incomingBits, bits));
+        }
 
         removeParityBits(bits);
 
-        System.out.println("Binary message: " + bits);
+        //System.out.println("Binary message: " + bits);
 
         Character[] bitsAsChar = new Character[bits.size()];
         bits.toArray(bitsAsChar);
